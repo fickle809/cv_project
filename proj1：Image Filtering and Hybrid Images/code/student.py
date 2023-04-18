@@ -22,8 +22,18 @@ def my_imfilter(image, filter):
 #####################################################################################################
 #                                            Your Code                                              #
 #####################################################################################################
-  filtered_image = None
-  assert filtered_image != None
+  image_padding = np.zeros([image.shape[0]+(filter.shape[0]-1),image.shape[1]+(filter.shape[1]-1),image.shape[2]])
+  filtered_image = np.zeros(image.shape)
+  image_padding[(filter.shape[0]-1)//2:(filter.shape[0]-1)//2+image.shape[0],(filter.shape[1]-1)//2:(filter.shape[1]-1)//2+image.shape[1]]=image
+
+  for k in range(image.shape[2]):
+      for i in range(image.shape[0]):
+          for j in range(image.shape[1]):
+              convolute_image = image_padding[i:i+filter.shape[0],j:j+filter.shape[1],k]
+              # reshape_image = convolute_image.reshape(-1,1)
+              # filtered_image[i][j][k] = sum(np.multiply(reshape_image,filter))
+              filtered_image[i][j][k] = sum(sum(np.multiply(convolute_image,filter)))
+
 #####################################################################################################
 #                                               End                                                 #
 #####################################################################################################
@@ -60,19 +70,20 @@ def gen_hybrid_image(image1, image2, cutoff_frequency):
   #                                            Your Code                                              #
   #####################################################################################################
   # Your code here:
-  low_frequencies = None # Replace with your implementation
+  large_blur_image1 = my_imfilter(image1,kernel)
+  low_frequencies = large_blur_image1 # Replace with your implementation
 
   # (2) Remove the low frequencies from image2. The easiest way to do this is to
   #     subtract a blurred version of image2 from the original version of image2.
   #     This will give you an image centered at zero with negative values.
   # Your code here #
-  high_frequencies = None # Replace with your implementation
+  large_blur_image2 = my_imfilter(image2,kernel)
+  high_frequencies = image2 - large_blur_image2 # Replace with your implementation
 
 
   # (3) Combine the high frequencies and low frequencies
   # Your code here #
-  hybrid_image = None
-
+  hybrid_image = low_frequencies + high_frequencies
   # (4) At this point, you need to be aware that values larger than 1.0
   # or less than 0.0 may cause issues in the functions in Python for saving
   # images to disk. These are called in proj1_part2 after the call to 
@@ -82,7 +93,13 @@ def gen_hybrid_image(image1, image2, cutoff_frequency):
   #####################################################################################################
   #                                               End                                                 #
   #####################################################################################################
-
+  for i in range(hybrid_image.shape[0]):
+     for j in range(hybrid_image.shape[1]):
+        for k in range(hybrid_image.shape[2]):
+           if(hybrid_image[i][j][k]>1.0):
+              hybrid_image[i][j][k]=1.0
+           if(hybrid_image[i][j][k]<0.0):
+              hybrid_image[i][j][k]=0.0
   return low_frequencies, high_frequencies, hybrid_image
 
 def vis_hybrid_image(hybrid_image):
