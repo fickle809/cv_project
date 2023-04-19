@@ -12,7 +12,7 @@
 - 编写my_filter()函数，实现高通滤波和低通滤波两种滤波形式
 - 通过my_filter()函数对图像进行高低通滤波，并且对图像分别在高低频进行融合。
 
-![image-20230418165939485](C:\Users\FTCY\AppData\Roaming\Typora\typora-user-images\image-20230418165939485.png)
+![image-20230418165939485](C:\Users\FTCY\Desktop\Projects\image\image-20230418165939485.png)
 
 两个主要的任务：**图像过滤**和**混合图像**
 
@@ -61,3 +61,7 @@ my_imfilter就是我们需要在student.py中补全的函数
 - filtered_image -> numpy nd- dim (m, n, c)
 错误:
 - filter有任何偶数维度->抛出一个异常，并给出合适的错误消息。
+
+##### 图像滤波处理公式：
+
+![image-20230419221206978](C:\Users\FTCY\Desktop\Projects\image\image-20230419221206978.png)
