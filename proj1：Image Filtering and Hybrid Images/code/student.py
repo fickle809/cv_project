@@ -90,9 +90,6 @@ def gen_hybrid_image(image1, image2, cutoff_frequency):
   # gen_hybrid_image().
   # One option is to clip (also called clamp) all values below 0.0 to 0.0, 
   # and all values larger than 1.0 to 1.0.
-  #####################################################################################################
-  #                                               End                                                 #
-  #####################################################################################################
   for i in range(hybrid_image.shape[0]):
      for j in range(hybrid_image.shape[1]):
         for k in range(hybrid_image.shape[2]):
@@ -100,6 +97,10 @@ def gen_hybrid_image(image1, image2, cutoff_frequency):
               hybrid_image[i][j][k]=1.0
            if(hybrid_image[i][j][k]<0.0):
               hybrid_image[i][j][k]=0.0
+  #####################################################################################################
+  #                                               End                                                 #
+  #####################################################################################################
+  
   return low_frequencies, high_frequencies, hybrid_image
 
 def vis_hybrid_image(hybrid_image):

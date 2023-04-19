@@ -1,4 +1,4 @@
-# 电子科技大学计算机视觉与模式识别课程作业
+# UESTC计算机视觉与模式识别课程作业
 
 因为上课都在摸鱼，所以记录一下在做这门课课程作业时遇到的一些问题与学习过程。
 
@@ -65,3 +65,99 @@ my_imfilter就是我们需要在student.py中补全的函数
 ##### 图像滤波处理公式：
 
 ![image-20230419221206978](C:\Users\FTCY\Desktop\Projects\image\image-20230419221206978.png)
+
+参照课件上的公式，因为要返回的filtered_image的维度和处理前的image是相同的，所以要根据filter的大小来填充image_padding，即在image的四周补0，使得其维度变为(m+k,n+l,c)（第三维度不用改变）
+
+my_imfilter函数内部如下：
+
+```python
+image_padding = np.zeros([image.shape[0]+(filter.shape[0]-1),image.shape[1]+(filter.shape[1]-1),image.shape[2]])
+  filtered_image = np.zeros(image.shape)
+  image_padding[(filter.shape[0]-1)//2:(filter.shape[0]-1)//2+image.shape[0],(filter.shape[1]-1)//2:(filter.shape[1]-1)//2+image.shape[1]]=image
+
+  for k in range(image.shape[2]):
+      for i in range(image.shape[0]):
+          for j in range(image.shape[1]):
+              convolute_image = image_padding[i:i+filter.shape[0],j:j+filter.shape[1],k]
+              # reshape_image = convolute_image.reshape(-1,1)
+              # filtered_image[i][j][k] = sum(np.multiply(reshape_image,filter))
+              filtered_image[i][j][k] = sum(sum(np.multiply(convolute_image,filter)))
+```
+
+具体处理时用到了np.multiply函数，注意这里不是矩阵乘法，而是两个维度相同的矩阵对应位置做乘积（哈达玛积），最后我们需要将做乘积后的结果矩阵每个位置上的数加起来，作为`filtered_image[i][j][k]`的值。
+
+（注释部分时刚开始写的另一种处理方法，但是好像在后面高通低通图像融合的时候结果会有问题-_-）
+
+这部分处理后的图像：
+
+1. 不做处理
+
+<img src="C:\Users\FTCY\Desktop\Projects\image\不做处理.png" style="zoom:50%;" />
+
+2. small blur（低通模糊处理）
+
+<img src="C:\Users\FTCY\Desktop\Projects\image\small blur.png" style="zoom:50%;" />
+
+3. large blur（高糊）用到了高斯模糊
+
+高斯滤波器是一种线性滤波器，能够有效的抑制噪声，平滑图像。其作用原理和均值滤波器类似，都是取滤波器窗口内的像素的均值作为输出。其窗口模板的系数和均值滤波器不同，均值滤波器的模板系数都是相同的为1;而高斯滤波器的模板系数，则随着距离模板中心的增大而系数减小。所以，高斯滤波器相比于均值滤波器对图像个模糊程度较小。
+
+<img src="C:\Users\FTCY\Desktop\Projects\image\large blur.png" style="zoom:50%;" />
+
+4. sobel算子（高通处理）
+
+参考了[这篇文章](https://blog.csdn.net/qq_43010987/article/details/121641734)，之前做的时候感觉这个滤波就像是朝着竖直方向的，果然看了这篇文章后发现sobel算子有竖直和水平两个方向的处理：
+
+<img src="C:\Users\FTCY\Desktop\Projects\image\sobel算子.png" style="zoom:80%;" />
+
+<img src="C:\Users\FTCY\Desktop\Projects\image\sobel 竖直方向.png" style="zoom:50%;" />
+
+<img src="C:\Users\FTCY\Desktop\Projects\image\sobel水平.png" style="zoom:50%;" />
+
+5. 拉普拉斯算子（高通）
+
+拉普拉斯算子是图像邻域内像素灰度差分计算的基础，通过二阶微分推导出的一种图像邻域增强算法。它的基本思想是当邻域的中心像素灰度低于它所在邻域内的其他像素的平均灰度时，此中心像素的灰度应该进一步降低；当高于时进一步提高中心像素的灰度，从而实现图像锐化处理。
+在算法实现过程中，通过对邻域中心像素的四方向或八方向求梯度，并将梯度和相加来判断中心像素灰度与邻域内其他像素灰度的关系，并用梯度运算的结果对像素灰度进行调整。
+[参考](https://blog.csdn.net/weixin_42415138/article/details/108574657)
+
+<img src="C:\Users\FTCY\Desktop\Projects\image\拉普拉斯1.png" style="zoom:50%;" />
+
+<img src="C:\Users\FTCY\Desktop\Projects\image\拉普拉斯2.png" style="zoom:50%;" />
+
+#### gen_hybrid_image函数部分
+
+其实哪怕没听课，把my_imfilter函数处理部分写出来，这个project也就差不多了，因为哪怕不清楚高通低通filter的实现，也能够直接调用给出的filter处理得到结果。嗯，因为我也只是为了完成project也只是随便了解了一下没去深究。
+
+```python
+# Your code here:
+  large_blur_image1 = my_imfilter(image1,kernel)
+  low_frequencies = large_blur_image1 
+
+  large_blur_image2 = my_imfilter(image2,kernel)
+  high_frequencies = image2 - large_blur_image2 
+
+  hybrid_image = low_frequencies + high_frequencies
+
+  for i in range(hybrid_image.shape[0]):
+     for j in range(hybrid_image.shape[1]):
+        for k in range(hybrid_image.shape[2]):
+           if(hybrid_image[i][j][k]>1.0):
+              hybrid_image[i][j][k]=1.0
+           if(hybrid_image[i][j][k]<0.0):
+              hybrid_image[i][j][k]=0.0
+```
+
+混合图像这部分：高斯kernel已经给了，所以我们要做的就是四步
+
+1. 对image1进行高斯低通处理
+2. 对image2进行高斯低通处理后，用原始图像image2-低通处理的图像得到高通处理的图像
+3. 将低通处理后的image1和image2直接相加
+4. clip处理
+
+结果：
+
+<img src="C:\Users\FTCY\Desktop\Projects\image\image1.png" style="zoom:50%;" />
+
+<img src="C:\Users\FTCY\Desktop\Projects\image\image2.png" alt="image2" style="zoom:50%;" />
+
+<img src="C:\Users\FTCY\Desktop\Projects\image\混合.png" alt="混合" style="zoom:50%;" />
