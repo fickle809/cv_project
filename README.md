@@ -12,7 +12,7 @@
 - 编写my_filter()函数，实现高通滤波和低通滤波两种滤波形式
 - 通过my_filter()函数对图像进行高低通滤波，并且对图像分别在高低频进行融合。
 
-![image-20230418165939485](C:\Users\FTCY\Desktop\Projects\image\image-20230418165939485.png)
+![image-20230418165939485](https://raw.githubusercontent.com/fickle809/cv_project/main/image/image-20230418165939485.png)
 
 两个主要的任务：**图像过滤**和**混合图像**
 
@@ -64,7 +64,7 @@ my_imfilter就是我们需要在student.py中补全的函数
 
 ##### 图像滤波处理公式：
 
-![image-20230419221206978](C:\Users\FTCY\Desktop\Projects\image\image-20230419221206978.png)
+![image-20230419221206978](https://raw.githubusercontent.com/fickle809/cv_project/main/image/image-20230419221206978.png)
 
 参照课件上的公式，因为要返回的filtered_image的维度和处理前的image是相同的，所以要根据filter的大小来填充image_padding，即在image的四周补0，使得其维度变为(m+k,n+l,c)（第三维度不用改变）
 
