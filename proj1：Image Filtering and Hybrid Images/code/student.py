@@ -19,9 +19,6 @@ def my_imfilter(image, filter):
   Errors if:
   - filter has any even dimension -> raise an Exception with a suitable error message.
   """
-#####################################################################################################
-#                                            Your Code                                              #
-#####################################################################################################
   image_padding = np.zeros([image.shape[0]+(filter.shape[0]-1),image.shape[1]+(filter.shape[1]-1),image.shape[2]])
   filtered_image = np.zeros(image.shape)
   image_padding[(filter.shape[0]-1)//2:(filter.shape[0]-1)//2+image.shape[0],(filter.shape[1]-1)//2:(filter.shape[1]-1)//2+image.shape[1]]=image
@@ -33,10 +30,6 @@ def my_imfilter(image, filter):
               # reshape_image = convolute_image.reshape(-1,1)
               # filtered_image[i][j][k] = sum(np.multiply(reshape_image,filter))
               filtered_image[i][j][k] = sum(sum(np.multiply(convolute_image,filter)))
-
-#####################################################################################################
-#                                               End                                                 #
-#####################################################################################################
   
   return filtered_image
 
@@ -65,10 +58,7 @@ def gen_hybrid_image(image1, image2, cutoff_frequency):
   s, k = cutoff_frequency, cutoff_frequency*2
   probs = np.asarray([exp(-z*z/(2*s*s))/sqrt(2*pi*s*s) for z in range(-k,k+1)], dtype=np.float32)
   kernel = np.outer(probs, probs)
-  
-  #####################################################################################################
-  #                                            Your Code                                              #
-  #####################################################################################################
+
   # Your code here:
   large_blur_image1 = my_imfilter(image1,kernel)
   low_frequencies = large_blur_image1 # Replace with your implementation
@@ -97,10 +87,7 @@ def gen_hybrid_image(image1, image2, cutoff_frequency):
               hybrid_image[i][j][k]=1.0
            if(hybrid_image[i][j][k]<0.0):
               hybrid_image[i][j][k]=0.0
-  #####################################################################################################
-  #                                               End                                                 #
-  #####################################################################################################
-  
+
   return low_frequencies, high_frequencies, hybrid_image
 
 def vis_hybrid_image(hybrid_image):
