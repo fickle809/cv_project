@@ -25,7 +25,7 @@ def get_landmarks(detector, predictor, img):
     
     #TODO: Implement this function!
     # Your Code to detect faces
-    faces = None
+    faces = detector(img)
     
     if len(faces) > 1:
         raise TooManyFaces
@@ -33,7 +33,8 @@ def get_landmarks(detector, predictor, img):
         raise NoFaces
     
     # Your Code to detect landmarks
-    landmarks = None
+    landmarks = [[p.x,p.y] for p in predictor(img,faces[0]).parts()]
+    landmarks = np.array(landmarks)
 
     return landmarks
 
@@ -53,7 +54,9 @@ def get_face_mask(img, landmarks):
     '''
     
     #TODO: Implement this function!
-    convexhull, mask = None, None
+    mask = np.zeros_like(img)
+    convexhull = cv2.convexHull(landmarks)
+    cv2.fillConvexPoly(mask,convexhull,255)
 
     return convexhull, mask
 
@@ -71,11 +74,15 @@ def get_delaunay_triangulation(landmarks, convexhull):
     '''
     
     #TODO: Implement this function!
-    triangles = None
+    rect = cv2.boundingRect(convexhull)
+    subdiv = cv2.Subdiv2D(rect)
+    subdiv.insert(landmarks.tolist())
+    triangles = subdiv.getTriangleList()
+    triangles = np.array(triangles,dtype=np.int32)
 
     return triangles
 
-def transformation_from_landmarks(target_landmarks, source_landmarks):
+def transformation_from_landmarks(source_landmarks, target_landmarks):
     '''
     Return an affine transformation [s * R | T] such that:
         sum ||s*R*p1,i + T - p2,i||^2
@@ -94,7 +101,19 @@ def transformation_from_landmarks(target_landmarks, source_landmarks):
     #   https://en.wikipedia.org/wiki/Orthogonal_Procrustes_problem
     
     #TODO: Implement this function!
-    M = None
+    target_landmarks = np.matrix(target_landmarks.astype(np.float64))
+    source_landmarks = np.matrix(source_landmarks.astype(np.float64))
+    c1 = np.mean(target_landmarks,axis=0)
+    c2 = np.mean(source_landmarks,axis=0)
+    target_landmarks -= c1
+    source_landmarks -= c2
+    s1 = np.std(target_landmarks)
+    s2 = np.std(source_landmarks)
+    target_landmarks /= s1
+    source_landmarks /= s2
+    U,S,Vt = np.linalg.svd(target_landmarks.T * source_landmarks)
+    R = (U * Vt).T
+    M = np.vstack([np.hstack(((s2/s1)*R,c2.T-(s2/s1)*R*c1.T)),np.matrix([0.,0.,1.])])
     
     return M
 
@@ -113,6 +132,12 @@ def warp_img(img, M, target_shape):
     '''
     
     #TODO: Implement this function!
-    warped_img = None
+    warped_img = np.zeros_like(img)
+    cv2.warpAffine(img,
+                   M[:2],
+                   (target_shape[1],target_shape[0]),
+                   dst=warped_img,
+                   borderMode=cv2.BORDER_TRANSPARENT,
+                   flags=cv2.WARP_INVERSE_MAP)
     
     return warped_img

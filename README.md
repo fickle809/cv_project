@@ -445,7 +445,7 @@ def match_features(im1_features, im2_features):
 
 
 
-
+后面两个proj相对来说代码量比较少，也比较简单，没花太多时间，就直接看代码吧
 
 ### Proj 3: Face Detection and Swap with OpenCV+Dlib
 
@@ -463,4 +463,14 @@ def match_features(im1_features, im2_features):
 
 ![image-20230419233746108](C:\Users\FTCY\AppData\Roaming\Typora\typora-user-images\image-20230419233746108.png)
 
-​	
+​	这个实验是使用词袋模型对十五个场景数据库进行场景识别，达到图像分类的目的。
+
+<img src="C:\Users\FTCY\AppData\Roaming\Typora\typora-user-images\image-20230430092120346.png" alt="image-20230430092120346" style="zoom: 50%;" />
+
+​	词袋模型的步骤如上图所示：
+
+- 特征提取
+- 学习视觉词典
+- 通过视觉词典量化特征
+- 用视觉词典的频率来表示图像
+
